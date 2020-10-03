@@ -29,6 +29,8 @@ public class PlayerControllerScript : BaseUnit {
     // Floating Vars
     public KeyCode floatKey;
     public float floatSpeed;
+    public float floatMaxDuration;
+    private int _floatTick;
     private int _floatCount;
     // Jumping Vars
     public KeyCode jumpKey;
@@ -78,6 +80,14 @@ public class PlayerControllerScript : BaseUnit {
                     _jumpCount = 0;
                     _floatCount = 0;
                 }
+                // Transitions 
+                if (Input.GetKeyDown(jumpKey)) {
+                    playerState = PlayerState.Jumping;
+                }
+                if (Input.GetKeyDown(floatKey)) {
+                    playerState = PlayerState.Floating;
+                }
+
                 cdReseter();
                 break;
 
@@ -87,9 +97,11 @@ public class PlayerControllerScript : BaseUnit {
                 break;
 
             case PlayerState.Floating:
-                // if(!buttonReleased)
                 Float(floatSpeed);
-                playerState = PlayerState.Moving;
+                _floatTick++;
+                if (Input.GetKeyUp(floatKey) || _floatTick > floatMaxDuration * 50) {
+                    playerState = PlayerState.Moving;
+                }
                 break;
 
             case PlayerState.Dashing:
@@ -114,6 +126,8 @@ public class PlayerControllerScript : BaseUnit {
     }
 
     void cdReseter() {
+        // Float counter reseter
+        _floatTick = 0;
         // Dash CD reseter
         _dashCDTick++;
         if (_dashCDTick > dashCD * 50) {
